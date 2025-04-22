@@ -43,4 +43,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8000 80
 
 # Start nginx and gunicorn
-CMD service nginx start && gunicorn search_project.wsgi:application --bind 0.0.0.0:8000
+CMD service nginx start && sleep 2 && gunicorn search_project.wsgi:application --bind 0.0.0.0:8000
