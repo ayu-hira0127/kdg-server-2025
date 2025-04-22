@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block body %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Carousel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        select, #id_query {
+            border: solid 1px #AE8D84;
+            color: #AE8D84;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .favorite-btn i {
+            font-size: 1.5rem;
+            color: grey;
+        }
+        
+        .favorite-btn .favorited {
+            color: red;
+        }
+
+        .carousel-item {
+            width: 100%;  /* 幅を100%に設定 */
+        }
+
+        /* testimonials セクション用 */
+        .testimonials .item img {
+            width: 100%;
+            height: auto;
+        }
+
+        .pagination{
+            margin: 16px 0;
+        }
+
+    @media (max-width: 992px) {
+        ul.search_result {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        ul.search_result {
+            grid-template-columns:repeat(2, 1fr);
+        }
+        
+    }
+
+    @media (max-width: 500px) {
+        ul.search_result {
+            height: fit-content;
+        }
+        
+    }
+    </style>
+</head>
+<body>
+    <section class="testimonials">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="customers-testimonials" class="owl-carousel">
+                        {% for i in "12345" %}
+                        <div class="item">
+                            <img src="{% static 'img/_.jpeg' %}" alt="">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="search_body">
+        <ul class="search_result">
+            {% for product in page_obj %}
+            <li class="goods_contents">
+                <a class="product_item" href="{% url 'search_app:product_detail' product.id %}">
+                    <div class="product-images" data-images='[{% for image in product.images.all %}"{{ image.image.url }}"{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                        <img class="d-block w-100" src="{% if product.images.all.count > 0 %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/noImg.jpg' %}{% endif %}" alt="{{ product.name }}">
+                    </div>
+                    <div>{{ product.name }}</div>
+                    <div>¥{{ product.price|floatformat:0|intcomma }}</div>
+                </a>
+                {% if request.user.is_authenticated %}
+                <form class="favoriteForm" action="{% url 'search_app:favorite_product' product.pk %}" method="POST">
+                    {% csrf_token %}
+                    {% if product.is_favorited %}
+                        <button type="submit" class="btn favorite-btn favorited">
+                            <i class="favoriteIcon fas fa-heart favorited"></i>
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn favorite-btn">
+                            <i class="favoriteIcon far fa-heart"></i>
+                        </button>
+                    {% endif %}
+                </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+        
+        <!-- ページネーションリンクの追加 -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+                {% endif %}
+        
+                <span class="current">
+                     {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">次へ</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+
+    <script>
+        jQuery(document).ready(function ($) {
+            $('#customers-testimonials').owlCarousel({
+                loop: true,
+                center: true,
+                items: 3,
+                margin: 0,
+                autoplay: true,
+                dots: true,
+                autoplayTimeout: 5000,
+                smartSpeed: 450,
+                responsive: {
+                    0: { items: 1 },
+                    768: { items: 2 },
+                    1170: { items: 3 }
+                }
+            });
+
+            $(".favoriteForm").on("submit", function (event) {
+                event.preventDefault();
+                const $form = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: $form.attr("action"),
+                    data: $form.serialize(),
+                    success: function (response) {
+                        const $icon = $form.find(".favoriteIcon");
+                        if (response.is_favorited) {
+                            $icon.removeClass("far fa-heart");
+                            $icon.addClass("fas fa-heart favorited");
+                        } else {
+                            $icon.removeClass("fas fa-heart favorited");
+                            $icon.addClass("far fa-heart");
+                        }
+                    }
+                });
+            });
+
+            // 画像の切り替えスクリプトの追加
+            function picChange(element, images) {
+                let count = 0;
+                function change() {
+                    count++;
+                    if (count == images.length) count = 0;
+                    element.src = images[count];
+                    setTimeout(change, 4000);
+                }
+                change();
+            }
+
+            document.querySelectorAll('.product-images').forEach(function(imageContainer) {
+                const images = JSON.parse(imageContainer.getAttribute('data-images').replace(/&quot;/g,'"'));
+                if (images.length > 1) {
+                    picChange(imageContainer.querySelector('img'), images);
+                }
+            });
+
+            const params = new URLSearchParams(window.location.search);
+            const scrollPosition = params.get('scroll') || 0;
+            window.scrollTo(0, scrollPosition);
+
+            window.addEventListener('scroll', function () {
+                const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+                const links = document.querySelectorAll('.search_result a');
+                links.forEach(link => {
+                    let url = new URL(link.href);
+                    url.searchParams.set('scroll', scrollPosition);
+                    link.href = url.href;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock body %}

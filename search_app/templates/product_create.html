@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block body %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h2 class="text-center mb-4">商品{% if object and object.pk %}編集{% else %}作成{% endif %}</h2>
+      <form method="POST" class="bg-light p-4 rounded shadow-sm" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- 商品情報フォーム -->
+        <div class="text_form">
+          {{ form.as_p }}
+        </div>
+        <!-- 画像アップロードフォーム -->
+        <div id="image_upload_section">
+          {% if form.errors.images %}
+            <div class="alert alert-danger">
+              <p>* 画像は必須項目です。</p>
+            </div>
+          {% endif %}
+          
+          {% if object.pk and object.images.exists %}
+          <div id="existing_images" class="d-flex flex-wrap mb-3">
+            {% for image in object.images.all %}
+              <div class="img-thumbnail position-relative mx-1">
+                <img src="{{ image.image.url }}" style="max-width: 150px; max-height: 150px;">
+                <button type="submit" name="delete_image" value="{{ image.id }}" class="btn btn-danger position-absolute top-0 end-0" style="transform: translate(50%, -50%);">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div id="image_preview" class="d-flex flex-wrap mb-3"></div>
+          <div id="inputFile">
+            <div id="dropArea" class="text-center">
+              <p class="sp-none">ここにファイルをドロップしてください<br>または</p>
+              <div id="inputFileWrap" class="mt-2">
+                <input type="file" name="images" multiple class="form-control" id="id_images" accept="image/*">
+                <div id="btnInputFile" class="btn btn-primary">ファイルを選択する</div>
+                <div id="btnChangeFile" class="btn btn-secondary" style="display: none;">ファイルを追加する</div>
+                <div id="btnResetFile" class="btn btn-danger" style="display: none;">全部リセットする</div>
+              </div>
+            </div>
+          </div>
+          <p class="text-muted">最大10枚までアップロード可能です。</p>
+        </div>
+
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-primary list-btn">保存する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // JavaScript同様に保持
+  let uploadedFiles = [];
+  
+  const fileArea = document.getElementById('dropArea');
+  const fileInput = document.getElementById('id_images');
+  const imagePreviewContainer = document.getElementById('image_preview');
+  const btnInputFile = document.getElementById('btnInputFile');
+  const btnChangeFile = document.getElementById('btnChangeFile');
+  const btnResetFile = document.getElementById('btnResetFile');
+
+  const toggleButtons = () => {
+    const isFileSelected = uploadedFiles.length > 0;
+    btnInputFile.style.display = isFileSelected ? 'none' : 'block';
+    btnChangeFile.style.display = isFileSelected ? 'block' : 'none';
+    btnResetFile.style.display = isFileSelected ? 'block' : 'none';
+  };
+
+  const resetFiles = () => {
+    uploadedFiles = [];
+    imagePreviewContainer.innerHTML = '';
+    fileInput.value = '';
+    toggleButtons();
+  };
+
+  btnInputFile.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  btnChangeFile.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  btnResetFile.addEventListener('click', resetFiles);
+
+  fileArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    fileArea.classList.add('dragover');
+  });
+
+  fileArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    fileArea.classList.remove('dragover');
+  });
+
+  fileArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileArea.classList.remove('dragover');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const files = e.target.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  });
+
+  const handleFileUpload = (files) => {
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith('image/')) {
+        return;
+      }
+      uploadedFiles.push(file);
+      displayPreviewImage(file, imagePreviewContainer);
+    });
+    toggleButtons();
+  };
+
+  const displayPreviewImage = (file, container) => {
+    const imgWrapper = document.createElement('div');
+    imgWrapper.classList.add('img-thumbnail', 'm-2', 'position-relative');
+
+    const img = document.createElement('img');
+    img.style.maxWidth = '150px';
+    img.style.maxHeight = '150px';
+
+    imgWrapper.appendChild(img);
+    container.appendChild(imgWrapper);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '&times;';
+    deleteButton.classList.add('btn', 'btn-danger', 'position-absolute', 'top-0', 'right-0');
+    deleteButton.style.transform = 'translate(0%, 0%)';
+    deleteButton.addEventListener('click', () => {
+      uploadedFiles = uploadedFiles.filter((f) => f !== file);
+      container.removeChild(imgWrapper);
+      toggleButtons();
+    });
+
+    imgWrapper.appendChild(deleteButton);
+  };
+</script>
+
+<style>
+  .text-center {
+    text-align: center;
+  }
+  #btnInputFile, #btnChangeFile, #btnResetFile {
+    width: 50%;
+    margin: auto;
+    padding: 5px;
+  }
+
+  #btnInputFile {
+    background: #7a615a;
+    color: white;
+  }
+
+  #inputFile {
+    text-align: center;
+  }
+
+  #dropArea {
+    border: 1px dashed #b5a5a0;
+    padding: 20px;
+    background: rgba(22, 165, 191, 0);
+    transition: all 0.25s cubic-bezier(0.21, 0.51, 0.51, 1);
+  }
+
+  #dropArea.dragover {
+    border: 2px solid #16a5bf;
+    background: rgba(22, 165, 191, 0.6);
+  }
+
+  .text_form {
+    text-align: center;
+  }
+
+  #id_name, #id_description, #id_price, #id_category {
+    width: 100%;
+  }
+
+  #id_name,#id_price,#id_category {
+    height: 40px;
+    padding: 0;
+  }
+
+  .list-btn {
+    margin: 10% 0;
+    width: 50%;
+    padding: 16px;
+    background-color: #f9c5b8;
+    color: white;
+    font-weight: bold;
+  }
+
+  .bg-light {
+    width: 50%;
+    margin: auto;
+  }
+
+  .btn-file-select {
+    display: inline-block;
+    margin-top: 10px;
+  }
+
+  #id_images {
+    display: none;
+  }
+
+  #image_preview {
+    display: flex;
+    overflow: scroll;
+    gap: 10px;
+  }
+
+  #image_preview .img-thumbnail {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  #existing_images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  div#menu-toggle {
+    display: none;
+  }
+
+  .img-thumbnail {
+    display: block;
+  }
+
+  .hamburger {
+    position: static;
+  }
+
+  @media screen and (max-width: 900px) {
+    .bg-light {
+      width: 80%;
+    }
+    #btnInputFile, #btnChangeFile, #btnResetFile {
+      width: 60%;
+    }
+    .sp-none{
+      display: none;
+    }
+  } 
+</style>
+{% endblock %}

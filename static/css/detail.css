@@ -1,0 +1,27 @@
+
+.goods_body {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 35px;
+    list-style-type: none;
+    margin: 30px auto 0 auto;
+    width: 80%;
+}
+
+.fixed_btn{
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;  /* 必要に応じて背景色を設定 */
+    padding: 24px;  /* 必要に応じて内側の余白を設定 */
+    text-align: center;  /* ボタンを中央に配置する */
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);  /* 上側に軽い影を付けて浮いている感じを出す */
+    z-index: 1000;  /* 他のコンテンツの上に表示されるようにする */
+    gap: 10%;
+}
+#favoriteForm {
+    display: flex;
+    align-items: center;
+}

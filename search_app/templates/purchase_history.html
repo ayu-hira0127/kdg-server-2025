@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block body %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">購入履歴</h2>
+    <ul class="list-group">
+        {% for item in history_items %}
+        <li class="list-group-item">
+            <div>
+                <h5>{{ item.product.name }}</h5>
+                <p>¥{{ item.total_price|floatformat:0|intcomma }} x {{ item.quantity }}</p>
+            </div>
+            <div>
+                <p>購入日: {{ item.purchased_at }}</p>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">購入履歴がありません。</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock body %}

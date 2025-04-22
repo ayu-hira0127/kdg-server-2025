@@ -1,0 +1,370 @@
+{% load static %}  
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'css/goods.css' %}" rel="stylesheet"> 
+    <link href="{% static 'css/kv.css' %}" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <title>Document</title>
+    <style>
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px; 
+            border: 1px solid #888; 
+            width: 80%; 
+            max-width: 500px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .search_contents {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .search_contents label {
+            flex: 1;
+            text-align: left;
+            padding-right: 10px;
+        }
+
+        .search_contents input,
+        .search_contents select {
+            flex: 2;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: solid 1px #AE8D84;
+        }
+
+        .price_box {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            flex: 2;
+        }
+
+        .price_box input {
+            width: 100%;
+        }
+
+        .price_box span {
+            width: auto;
+            padding: 0 5px;
+        }
+
+        .search-btn {
+            display: block;
+            width: 80%;
+            margin: 30px auto 0; /*上下左右のマージンを調整*/
+            background-color: #f9c5b8;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        form#search-form {
+            padding-top: 26px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 300px;
+            height: 100%;
+            background-color: #f9c5b8;
+            color: #333;
+            transition: left 0.3s ease;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            display: none;
+        }
+
+        .menu.open {
+            left: 0;
+        }
+
+        .hamburger {
+            width: 30px;
+            cursor: pointer;
+            z-index: 20;
+            display: none;
+            position: absolute;
+            left: 20px;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: #ffffff;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        .menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 80px;
+        }
+
+        .menu li {
+            padding: 20px 0;
+            border-bottom: 1px solid #7a615a;
+            ;
+        }
+
+        .menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            .hamburger {
+                display: block;
+            }
+            header .btn-secondary, header img:not(.hamburger-menu img), header a {
+                display: none;
+            }
+            header {
+                display: flex;
+                justify-content: flex-start;
+            }
+            .menu {
+                display: block;
+            }
+        }
+
+        .footer {
+            background-color: #f9c5b8;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            flex-shrink: 0;
+            margin-top: 62px;
+        }
+
+        
+
+    </style>
+</head>
+<body>
+<header>
+
+    <a href="{% url 'search_app:search_view' %}" class="btn-secondary">Top</a>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'accounts:mypage' %}">
+            <img src="{% static '/img/人物のアイコン素材 その3.png' %}" alt="">
+        </a>
+    {% else %}
+        <a href="{% url 'accounts:login' %}">
+            <img src="{% static '/img/人物のアイコン素材 その3.png' %}" alt="">
+        </a>
+    {% endif %}
+
+    <a href="{% url 'search_app:view_cart' %}">
+        <img src="{% static '/img/ショッピングカートの無料アイコン10.png' %}" alt="">
+    </a>
+
+    <a href="{% url 'search_app:favorite_list' %}">
+        <img src="{% static '/img/hurt.png' %}" alt="">
+    </a>
+
+    <div class="hamburger-menu" id="menu-toggle">
+        <img src="{% static 'img/search.png' %}" alt="" style="width: 11%;">
+    </div>
+
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    
+    <div class="menu" id="menu">
+        <ul>
+            <li>
+                <a href="{% url 'search_app:search_view' %}">Top</a>
+            </li>
+            {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'accounts:mypage' %}">Mypage</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{% url 'accounts:login' %}">Login</a>
+                </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'search_app:view_cart' %}">Cart</a>
+            </li>
+            <li>
+                <a href="{% url 'search_app:favorite_list' %}">Favorites</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+
+<!-- モーダル -->
+<div id="menu-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" id="close-menu">&times;</span>
+        <nav id="search-menu">
+            <form method="get" id="search-form">
+                <div class="search_contents">
+                    <label for="query">検索キーワード</label>
+                    <input type="text" id="query" name="query" placeholder="検索したいキーワードを入力">
+                </div>
+                <div class="search_contents">
+                    <label for="category">カテゴリ</label>
+                    <select name="category" id="category">
+                        <option value="">絞り込みをしない</option>
+                        <option value="トップス">トップス</option>
+                        <option value="ボトムス">ボトムス</option>
+                        <option value="アクセサリー">アクセサリー</option>
+                        <option value="アウター">アウター</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="search_contents">
+                    <label for="min_price max_price">価格</label>
+                    <div class="price_box">
+                        <input type="number" name="min_price" id="min_price" min="0">
+                        <span>~</span>
+                        <input type="number" name="max_price" id="max_price" min="0">
+                    </div>
+                </div>
+                <div class="search_contents">
+                    <label for="sort">並び替え</label>
+                    <select name="sort" id="sort">
+                        <option value="name">名前順</option>
+                        <option value="price_asc">価格が安い順</option>
+                        <option value="price_desc">価格が高い順</option>
+                    </select>
+                </div>
+                <button type="submit" class="search-btn">検索</button>
+                <button type="button" id="clear-btn" class="search-btn">クリア</button>
+            </form>
+        </nav>
+    </div>
+</div>
+
+{% block body %}
+{% endblock body %}
+
+<script>
+document.getElementById('menu-toggle').addEventListener('click', function(event) {
+    event.stopPropagation(); 
+    var modal = document.getElementById('menu-modal');
+    modal.style.display = 'flex';
+    // クエリパラメータを取得してフォームを更新
+    var urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('query').value = urlParams.get('query') || '';
+    document.getElementById('category').value = urlParams.get('category') || '';
+    document.getElementById('min_price').value = urlParams.get('min_price') || '';
+    document.getElementById('max_price').value = urlParams.get('max_price') || '';
+    document.getElementById('sort').value = urlParams.get('sort') || 'name';
+});
+
+document.getElementById('close-menu').addEventListener('click', function() {
+    var modal = document.getElementById('menu-modal');
+    modal.style.display = 'none';
+});
+
+window.addEventListener('click', function(event) {
+    var modal = document.getElementById('menu-modal');
+
+    if (modal.style.display === 'flex' && !modal.children[0].contains(event.target)) {
+        modal.style.display = 'none';
+    }
+});
+
+document.getElementById('search-form').addEventListener('submit', function() {
+    var modal = document.getElementById('menu-modal');
+    modal.style.display = 'none';
+});
+
+document.getElementById('clear-btn').addEventListener('click', function() {
+    document.getElementById('query').value = '';
+    document.getElementById('category').selectedIndex = 0;
+    document.getElementById('min_price').value = '';
+    document.getElementById('max_price').value = '';
+    document.getElementById('sort').selectedIndex = 0;
+});
+
+document.getElementById('hamburger').addEventListener('click', function() {
+    var menu = document.getElementById('menu');
+    var hamburger = document.getElementById('hamburger');
+    menu.classList.toggle('open');
+    hamburger.classList.toggle('active');
+});
+</script>
+
+<script src="{% static 'js/search.js' %}"></script>
+
+<footer class="footer">
+    <p>&copy; 2025  Company. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

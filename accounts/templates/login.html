@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="todo">
+        <div class="todo_content">
+            <h2>ログイン</h2> <!-- タイトルを追加 -->
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <p for="{{ form.username.id_for_label }}" class="form-label">ユーザー名</p>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="error">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <p for="{{ form.password.id_for_label }}" class="form-label">パスワード</p>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="error">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn">ログイン</button> <!-- ボタンのテキスト変更 -->
+                <div class="signup">
+                    <p>会員登録をされていない方</p>
+                    <a class="signup-btn" href="{% url 'accounts:signup' %}">新規登録</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<style>
+.todo {
+    width: 80%;
+    max-width: 500px; /* 最大幅を設定 */
+    margin: auto;
+    text-align: center;
+    padding: 20px; /* パディングを追加 */
+    background: #f9f9f9; /* 背景色を追加 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* ボックスシャドウを追加 */
+    border-radius: 10px; /* 角を丸く */
+}
+
+.todo_content h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left; /* ラベルとエラーメッセージを左揃えに */
+    text-align: center;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    background: #f9c5b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 0.7;;
+}
+
+.signup {
+    margin-top: 20px;
+    border-top: solid 1px #ddd; /* ボーダー色を変更 */
+    padding-top: 20px;
+    text-align: center; /* 中央揃え */
+}
+.signup-btn:hover{
+    opacity: 0.7;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+}
+
+input {
+    width: 70%;
+    padding: 8px;
+}
+
+div#menu-toggle {
+    display: none;
+}
+.hamburger {
+    position: static;
+}
+</style>
+
+{% endblock %}

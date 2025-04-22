@@ -1,0 +1,160 @@
+button {
+    background: white;
+    border: solid 1px #AE8D84;
+    color: #7a615a;
+}
+html {
+    height: 100vh;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #fdf9f8;
+    margin: 0;
+    color: #7a615a!important;
+}
+
+header {
+    position: relative;
+    padding: 16px;
+    background-color: #f9c5b8;
+    display: flex;
+}
+
+header a {
+    display: flex;
+    align-items: center;
+    margin: auto 1%;
+    width: 3%;
+    color: white!important;
+}
+
+header a img {
+    width: 24px;
+}
+
+a {
+    font-style: none;
+    text-decoration: none;
+    color: #7a615a;
+}
+
+p {
+    margin: 10px 0;
+    color: #7a615a!important;;
+}
+h1{
+    color: #7a615a!important;
+}
+h3 {
+    margin: 0!important;
+}
+
+h4 {
+    margin: 0;
+}
+
+/* h2{
+    font-size: 2vw;
+} */
+.hamburger-menu {
+    cursor: pointer; 
+    display: flex;
+    margin: 0 0 0 auto;
+    flex-direction: row-reverse;
+}
+.product-images img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+@media (max-width: 500px) {
+    .product-images img {
+        height: 190px;
+    }
+}
+
+
+.goods_contents{
+    height: fit-content;
+    background: white;
+    padding: 10px;
+}
+/* モーダルのスタイル */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; /* z-index を設定して、他の要素よりも前に表示 */
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+    display: flex; /* フレックスボックスを使用 */
+    justify-content: center; /* 水平中央寄せ */
+    align-items: center; /* 垂直中央寄せ */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px; 
+    border: 1px solid #888; 
+    width: 80%; 
+    max-width: 500px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.search_contents {
+    margin: 3vw auto;
+}
+
+.pagination, .pagination a {
+    color: #9E867B;
+    text-align: center;
+    margin: 2vw 0;
+}
+.search_result{
+    height: 80vh;
+    padding: 0;
+}
+
+ul.search_result{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    list-style-type: none;
+    padding: 0;
+    margin: 30px auto 0 auto;
+    width: 80%;
+}
+
+ul.search_result li:hover {
+    opacity: 0.7;
+}
+
+.search_result {
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+section.search_body {
+    height: 90vh;
+}
+

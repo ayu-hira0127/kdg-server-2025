@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block body %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳細</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        .image-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+            max-height: 400px;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .thumbnail-images {
+            display: flex;
+            justify-content: center;
+            overflow-x: scroll;
+        }
+
+        .thumbnail-images img {
+            width: 80px;
+            height: 80px;
+            margin-right: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+            object-fit: cover;
+        }
+
+        .thumbnail-images img:hover {
+            border-color: #7a615a;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            cursor: pointer;
+        }
+
+        .arrow.left {
+            left: -10px;
+        }
+
+        .arrow.right {
+            right: -10px;
+        }
+
+        .arrow.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .details-section {
+            flex: 1;
+            padding-left: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .goods_title {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .goods_text {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .price {
+            font-size: 24px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .add_cart_btn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 50px;
+            padding: 20px 0;
+        }
+
+        .btn {
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #f9c5b8;
+            padding: 10px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.7;
+        }
+
+        /* モーダルスタイルの追加 */
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 300px;
+            background-color: white;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+        }
+
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+
+        .cart_btn {
+            color: #7a615a;
+        }
+        .cart_btn:hover{
+            opacity: 0.7;
+        }
+        @media (max-width: 500px){
+        .container{
+            display: block;;
+        }
+
+        .add_cart_btn {
+            justify-content: center;
+        }
+
+        .details-section{
+            padding: 0;
+            text-align: center;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            {% if images %}
+                <img id="mainImage" class="main-image" src="{{ images.0.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <img id="mainImage" class="main-image" src="{% static 'img/noImg.jpg' %}" alt="Default Image">
+            {% endif %}
+            <button class="arrow left disabled" onclick="changeImage(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="arrow right" onclick="changeImage(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="thumbnail-images">
+                {% if images %}
+                    {% for image in images %}
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}" onclick="setImage('{{ image.image.url }}', {{ forloop.counter0 }})">
+                    {% endfor %}
+                {% else %}
+                    <img src="{% static 'img/noImg.jpg' %}" alt="Default Image">
+                {% endif %}
+            </div>
+        </div>
+        <div class="details-section">
+            <h2 class="goods_title">{{ product.name }}</h2>
+            <p class="goods_text">{{ product.description }}</p>
+            <p class="goods_text price">¥{{ product.price|floatformat:0|intcomma }}</p>
+            {% if request.user.is_authenticated %}
+            <div class="add_cart_btn">
+                <form id="addToCartForm" action="{% url 'search_app:add_to_cart' product.pk %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">カートに入れる</button>
+                </form>
+                <form class="favoriteForm" action="{% url 'search_app:favorite_product' product.pk %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn favorite-btn">
+                        <i class="favoriteIcon {% if is_favorited %}fas fa-heart favorited{% else %}far fa-heart{% endif %}"></i>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- モーダルのHTML -->
+    <div id="cartModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <p>カートに追加しました。</p>
+            <a href="{% url 'search_app:view_cart' %}" class="btn btn-secondary cart_btn">カートを見る</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+    <script>
+        let currentImageIndex = 0;
+        const images = [
+            {% for image in images %}
+                '{{ image.image.url }}',
+            {% endfor %}
+        ];
+
+        function setImage(url, index) {
+            document.getElementById('mainImage').src = url;
+            currentImageIndex = index;
+            updateArrows();
+        }
+
+        function changeImage(direction) {
+            let newIndex = currentImageIndex + direction;
+            if (newIndex >= 0 && newIndex < images.length) {
+                setImage(images[newIndex], newIndex);
+            }
+        }
+
+        function updateArrows() {
+            if (currentImageIndex === 0) {
+                document.querySelector('.arrow.left').classList.add('disabled');
+            } else {
+                document.querySelector('.arrow.left').classList.remove('disabled');
+            }
+
+            if (currentImageIndex === images.length - 1) {
+                document.querySelector('.arrow.right').classList.add('disabled');
+            } else {
+                document.querySelector('.arrow.right').classList.remove('disabled');
+            }
+        }
+
+        $(document).ready(function() {
+            if (sessionStorage.getItem('cartModalDisplayed') === 'true') {
+                $("#cartModal").hide();
+                sessionStorage.removeItem('cartModalDisplayed');
+            }
+
+            const $favoriteForm = $(".favoriteForm");
+            $favoriteForm.on("submit", function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: "POST",
+                    url: $favoriteForm.attr("action"),
+                    data: $favoriteForm.serialize(),
+                    success: function(response) {
+                        const $favoriteIcon = $favoriteForm.find(".favoriteIcon");
+                        if (response.is_favorited) {
+                            $favoriteIcon.removeClass("far fa-heart");
+                            $favoriteIcon.addClass("fas fa-heart favorited");
+                        } else {
+                            $favoriteIcon.removeClass("fas fa-heart favorited");
+                            $favoriteIcon.addClass("far fa-heart");
+                        }
+                    }
+                });
+            });
+
+            const $addToCartForm = $("#addToCartForm");
+            $addToCartForm.on("submit", function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: "POST",
+                    url: $addToCartForm.attr("action"),
+                    data: $addToCartForm.serialize(),
+                    success: function(response) {
+                        sessionStorage.setItem('cartModalDisplayed', 'true');
+                        $("#cartModal").fadeIn();
+                    }
+                });
+            });
+
+            $("#closeModal").on("click", function() {
+                $("#cartModal").fadeOut();
+            });
+
+            $(window).on("click", function(event) {
+                if ($(event.target).is("#cartModal")) {
+                    $("#cartModal").fadeOut();
+                }
+            });
+
+            updateArrows();
+        });
+    </script>
+</body>
+</html>
+{% endblock body %}

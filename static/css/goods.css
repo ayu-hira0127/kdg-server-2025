@@ -1,0 +1,30 @@
+/* 商品 */
+
+/* .list-group-item {
+    list-style: none;
+    text-align: center;
+} */
+
+.product_item {
+    text-align: center;
+    background-color: white;
+    color: black;
+    height: 50%;
+}
+
+/* お気に入りボタン */
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.favorite-btn i {
+    font-size: 1.5rem; /* アイコンのフォントサイズを調整 */
+    color: #7a615a; /* デフォルトの色がついていないハートの色 */
+}
+
+.favorite-btn .favorited {
+    color: red; /* お気に入り追加後のハートの色 */
+}

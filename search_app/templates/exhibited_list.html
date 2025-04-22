@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block body %}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">出品リスト</h1>
+    <ul class="search_result list-group">
+        {% for product in products %}
+        <li class="list-group-item goods_contents">
+            <a class="product_item" href="{% url 'search_app:product_detail' product.pk %}" class="btn btn-primary me-2">
+                <div>
+                    <div class="product-images">
+                        {% if product.images.all.count > 0 %}
+                            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="goods_img">
+                        {% else %}
+                            <img src="{% static 'img/noImg.jpg' %}" alt="Default Image" class="goods_img">
+                        {% endif %}
+                    </div>
+                    <div>{{ product.name }}</div>
+                    <div>¥{{ product.price|floatformat:0|intcomma }}</div>
+                </div>
+                
+            </a>
+            <div class="list-frex">
+                <a href="{% url 'search_app:product_update' product.pk %}" class="btn btn-warning me-2">編集</a>
+                <form action="{% url 'search_app:product_delete' product.pk %}" method="POST" onsubmit="return confirm('本当に削除しますか?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">出品された商品はありません。</li>
+        {% endfor %}
+    </ul>
+</div>
+<style>
+    .list-frex{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    div#menu-toggle {
+        display: none;
+    }
+    @media (max-width: 992px) {
+        ul.list-group {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        ul.list-group {
+            grid-template-columns:repeat(2, 1fr);
+        }
+        
+    }
+
+    @media (max-width: 500px) {
+        ul.list-group {
+            height: fit-content;
+        }
+    }
+    .hamburger {
+        position: static;
+    }
+        
+</style>
+{% endblock body %}

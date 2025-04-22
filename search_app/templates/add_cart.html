@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'css/detail.css' %}">
+<div class="container mt-5">
+    <h1 class="text-center mb-4">カート</h1>
+    <ul class="list-group">
+        {% for item in cart_items %}
+            <li class="align-items-center goods_contents">
+                <a class="product_item" href="{% url 'search_app:product_detail' item.product.id %}">
+                    <div>
+                        <div class="product-images">
+                            <img class="d-block w-100" src="{% if item.product.images.all.count > 0 %}{{ item.product.images.all.0.image.url }}{% else %}{% static 'img/noImg.jpg' %}{% endif %}" alt="{{ item.product.name }}">
+                        </div>
+                        <div>{{ item.product.name }}</div>
+                        <div>¥{{ item.product.price|floatformat:0|intcomma }} x {{ item.quantity }}</div> 
+                    </div>
+                </a>
+                <form action="{% url 'search_app:remove_from_cart' item.pk %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+            </li>
+        {% empty %}
+        <li class="list-group-item">カートに商品がありません。</li>
+        {% endfor %}
+    </ul>
+    <div class="fixed_btn">
+        <div class="total-price mt-4 text-right">
+            <h4>総合計: ¥{{ total_price|floatformat:0|intcomma }}</h4>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'search_app:purchase' %}" class="btn btn-success">購入する</a>
+        </div>
+    </div>
+</div>
+<style>
+    ul.list-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        list-style-type: none;
+        padding: 0;
+        margin: 30px auto 0 auto;
+        width: 80%;
+        padding-bottom: 150px; /* fixed button sectionの高さに合わせる */
+    }
+    div#menu-toggle {
+        display: none;
+    }
+
+    @media (max-width: 992px) {
+        ul.list-group {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        ul.list-group {
+            grid-template-columns:repeat(2, 1fr);
+        }
+        
+    }
+
+    @media (max-width: 500px) {
+        ul.list-group {
+            height: fit-content;
+        }
+        
+    }
+    .hamburger {
+        position: static;
+    }
+</style>
+{% endblock body %}
