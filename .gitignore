@@ -42,3 +42,18 @@ env/
 # OS
 .DS_Store
 Thumbs.db 
+
+# Terraform
+.terraform/*
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# SSH keys and credentials
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+.aws/
+*.credentials
