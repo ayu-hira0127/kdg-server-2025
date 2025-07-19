@@ -41,4 +41,26 @@ env/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Terraform - 重要な機密ファイル
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# AWS credentials
+.aws/
+aws-credentials.txt
+
+# SSH keys
+*.pem
+*.ppk
+id_rsa*
+id_ed25519*
+known_hosts 
